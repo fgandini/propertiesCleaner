@@ -1,3 +1,8 @@
+## What it does?
+PropertiesCleaner it's a easy way to take off all keys from ".properties" that your program don't use anymore.
+
+It will create a new .properties file with found keys at the same path of the original one.
+
 ## What do you need?
 
 - Java 8
