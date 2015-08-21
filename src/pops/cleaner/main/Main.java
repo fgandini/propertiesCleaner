@@ -34,33 +34,33 @@ public class Main {
         Path projectDirectoryPath = Paths.get(args[1]);   
 
         Properties propertiesFromFile = new Properties();
-        Properties propertiesFoundedDirectory = new Properties();
+        Properties propertiesFoundInDirectory = new Properties();
 
         try {
             propertiesFromFile = getKeysFromProperties(propertiesFilePath);
-            propertiesFoundedDirectory.putAll(searchInDirectory(propertiesFromFile, projectDirectoryPath));
+            propertiesFoundInDirectory.putAll(searchInDirectory(propertiesFromFile, projectDirectoryPath));
         } catch (IOException e) {
             System.out.println("ohh crap...error when trying to read properties file!");
             e.printStackTrace();
             System.exit(0);
         }
 
-        Properties notFoundedKeys = getNotFoundedKeys(propertiesFromFile, propertiesFoundedDirectory);
+        Properties notFoundKeys = getNotFoundKeys(propertiesFromFile, propertiesFoundInDirectory);
 
-        if (!notFoundedKeys.isEmpty()) {
+        if (!notFoundKeys.isEmpty()) {
             System.out.println("####-- Keys not found --####");
-            notFoundedKeys.forEach((k,v) -> {
+            notFoundKeys.forEach((k,v) -> {
                 System.out.println(k.toString());
             });
         }   
 
-        saveNewFileProperties(propertiesFoundedDirectory, propertiesFilePath);
+        saveNewFileProperties(propertiesFoundInDirectory, propertiesFilePath);
     }
 
     public static Properties searchInFile(Properties properties, Path filePath) throws FileNotFoundException {
 
         BufferedReader br = null;
-        Properties propertiesWithFoundedKeysFile = new Properties();
+        Properties propertiesWithFoundKeysFile = new Properties();
         String line = "";
         int lineNumber = 0;
 
@@ -73,7 +73,7 @@ public class Main {
 
                 for (Entry<Object, Object> prop : properties.entrySet()) {
                     if(line.matches(".*\"" + prop.getKey().toString() + "\".*")){
-                        propertiesWithFoundedKeysFile.setProperty(prop.getKey().toString(), prop.getValue().toString());
+                        propertiesWithFoundKeysFile.setProperty(prop.getKey().toString(), prop.getValue().toString());
                         System.out.println("Found key - " + prop.getKey().toString() + " - on line " + lineNumber + " - on file - " + filePath.getFileName());     
                     }
                 }
@@ -85,16 +85,16 @@ public class Main {
             br.close();
         } catch (IOException e) {}       
 
-        return propertiesWithFoundedKeysFile;
+        return propertiesWithFoundKeysFile;
     }
 
-    private static void saveNewFileProperties(Properties foundedKeys, Path propertiesPath){
+    private static void saveNewFileProperties(Properties foundKeys, Path propertiesPath){
 
         FileOutputStream fOS;
 
         try {
             fOS = new FileOutputStream(propertiesPath.toString() + "_CLEAN");
-            foundedKeys.store(fOS, "");
+            foundKeys.store(fOS, "");
             fOS.flush();
             fOS.close();        
         } catch (FileNotFoundException e) {
@@ -104,29 +104,29 @@ public class Main {
         }
     }
 
-    private static Properties getNotFoundedKeys(Properties propertiesFromFile, Properties propertiesFoundedDirectory) {
+    private static Properties getNotFoundKeys(Properties propertiesFromFile, Properties propertiesFoundDirectory) {
 
-        Properties notFoundedKey = new Properties();
+        Properties notFoundKey = new Properties();
 
         for (Entry<Object, Object> prop : propertiesFromFile.entrySet()) {
-            if(!propertiesFoundedDirectory.containsKey(prop.getKey())) {
-                notFoundedKey.put(prop.getKey(), prop.getValue());
+            if(!propertiesFoundDirectory.containsKey(prop.getKey())) {
+                notFoundKey.put(prop.getKey(), prop.getValue());
             }            
         }
 
-        return notFoundedKey;
+        return notFoundKey;
     }
 
     private static Properties searchInDirectory(Properties properties, Path directoryPath) {
 
-        Properties propertiesWithFoundedKeysDirectory = new Properties();
+        Properties propertiesWithFoundKeysInDirectory = new Properties();
 
         try {
             Files.walk(directoryPath)
                 .filter(c -> Files.isRegularFile(c))
                 .forEach(file -> {
                 try {
-                    propertiesWithFoundedKeysDirectory.putAll(searchInFile(properties, file));
+                    propertiesWithFoundKeysInDirectory.putAll(searchInFile(properties, file));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -135,7 +135,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        return propertiesWithFoundedKeysDirectory;
+        return propertiesWithFoundKeysInDirectory;
     }
 
     private static Properties getKeysFromProperties(Path propertiesPath) throws FileNotFoundException, IOException  {
